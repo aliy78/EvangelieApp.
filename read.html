@@ -50,23 +50,7 @@
 
     async function loadBible() {
       const response = await fetch('data/bible.json');
-      const json = await response.json();
-      bibleData = {};
-
-      json.Books.forEach(book => {
-        const bookName = book.BookName || book.BookId;
-        bibleData[bookName] = {};
-
-        book.Chapters.forEach(chapter => {
-          const chapterId = chapter.ChapterId.toString();
-          bibleData[bookName][chapterId] = {};
-
-          chapter.Verses.forEach(verse => {
-            bibleData[bookName][chapterId][verse.VerseId] = verse.Text;
-          });
-        });
-      });
-
+      bibleData = await response.json();
       populateBooks();
     }
 
@@ -74,10 +58,10 @@
       const bookSelect = document.getElementById("bookSelect");
       bookSelect.innerHTML = "";
 
-      Object.keys(bibleData).forEach(book => {
+      Object.keys(bibleData).forEach(bookName => {
         const option = document.createElement("option");
-        option.value = book;
-        option.textContent = book;
+        option.value = bookName;
+        option.textContent = bookName;
         bookSelect.appendChild(option);
       });
 
@@ -91,10 +75,10 @@
       const selectedBook = document.getElementById("bookSelect").value;
       const chapters = bibleData[selectedBook];
 
-      Object.keys(chapters).forEach(chapter => {
+      Object.keys(chapters).forEach(chapterId => {
         const option = document.createElement("option");
-        option.value = chapter;
-        option.textContent = chapter;
+        option.value = chapterId;
+        option.textContent = chapterId;
         chapterSelect.appendChild(option);
       });
 
@@ -125,4 +109,4 @@
   </script>
 </body>
 </html>
-Добавлен файл read.html с отображением Библии
+Обновлён скрипт для простой структуры bible.json
