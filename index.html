@@ -6,112 +6,62 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f9f9f9;
+      background-color: #fefaf2;
+      margin: 20px;
       color: #333;
-      padding: 20px;
     }
     h1 {
       text-align: center;
-      margin-bottom: 30px;
+      color: #6b4f1d;
     }
-    .controls {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    select {
-      padding: 10px;
-      font-size: 1em;
-      margin: 0 10px;
-    }
-    .verse {
-      background: #fff;
-      padding: 10px;
-      margin: 5px auto;
-      max-width: 700px;
-      border-left: 4px solid #ffd700;
+    #bible-display p {
+      margin: 6px 0;
+      line-height: 1.5;
     }
   </style>
 </head>
 <body>
-  <h1>📖 Свет Слова — Чтение Библии</h1>
 
-  <div class="controls">
-    <label for="bookSelect">Книга:</label>
-    <select id="bookSelect"></select>
-
-    <label for="chapterSelect">Глава:</label>
-    <select id="chapterSelect"></select>
-  </div>
-
-  <div id="verses"></div>
+  <h1>Свет Слова — Чтение Библии</h1>
+  <div id="bible-display">Загрузка главы...</div>
 
   <script>
-    const bibleData = {
-      "Иоанна": {
-        "3": {
-          "16": "Ибо так возлюбил Бог мир, что отдал Сына Своего Единородного...",
-          "17": "Ибо не послал Бог Сына Своего в мир, чтобы судить мир..."
-        }
-      },
-      "Бытие": {
-        "1": {
-          "1": "В начале сотворил Бог небо и землю.",
-          "2": "Земля же была безвидна и пуста..."
-        },
-        "2": {
-          "1": "Так совершены небо и земля и все воинство их.",
-          "2": "И совершил Бог к седьмому дню дела Свои..."
-        }
-      }
-    };
+    let bibleData = null;
 
-    const bookSelect = document.getElementById("bookSelect");
-    const chapterSelect = document.getElementById("chapterSelect");
-    const versesDiv = document.getElementById("verses");
+    // Загружаем JSON с Библией
+    fetch('data/bible.json')
+      .then(response => response.json())
+      .then(data => {
+        bibleData = data;
+        renderChapter(43, 3); // Иоанна 3
+      });
 
-    function populateBooks() {
-      for (let book in bibleData) {
-        const option = document.createElement("option");
-        option.value = book;
-        option.textContent = book;
-        bookSelect.appendChild(option);
+    // Функция отображения главы
+    function renderChapter(bookId, chapterId) {
+      const book = bibleData.Books.find(b => b.BookId === bookId);
+      if (!book) {
+        document.getElementById("bible-display").innerText = "Книга не найдена.";
+        return;
       }
-      populateChapters();
+
+      const chapter = book.Chapters.find(c => c.ChapterId === chapterId);
+      if (!chapter) {
+        document.getElementById("bible-display").innerText = "Глава не найдена.";
+        return;
+      }
+
+      const verses = chapter.Verses;
+      const container = document.getElementById("bible-display");
+      container.innerHTML = "";
+
+      verses.forEach(v => {
+        const verseEl = document.createElement("p");
+        verseEl.textContent = `${v.VerseId}. ${v.Text}`;
+        container.appendChild(verseEl);
+      });
     }
-
-    function populateChapters() {
-      chapterSelect.innerHTML = "";
-      const selectedBook = bookSelect.value;
-      const chapters = bibleData[selectedBook];
-      for (let chapter in chapters) {
-        const option = document.createElement("option");
-        option.value = chapter;
-        option.textContent = chapter;
-        chapterSelect.appendChild(option);
-      }
-      displayVerses();
-    }
-
-    function displayVerses() {
-      versesDiv.innerHTML = "";
-      const book = bookSelect.value;
-      const chapter = chapterSelect.value;
-      const verses = bibleData[book][chapter];
-      for (let verseNum in verses) {
-        const verseText = verses[verseNum];
-        const div = document.createElement("div");
-        div.className = "verse";
-        div.innerHTML = `<strong>${book} ${chapter}:${verseNum}</strong><br>${verseText}`;
-        versesDiv.appendChild(div);
-      }
-    }
-
-    bookSelect.addEventListener("change", populateChapters);
-    chapterSelect.addEventListener("change", displayVerses);
-
-    populateBooks();
   </script>
+
 </body>
 </html>
-Добавлен переключатель книг и глав
 
