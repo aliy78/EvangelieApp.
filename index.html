@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Свет Слова — Поиск по Писанию</title>
+  <title>Свет Слова — Чтение Библии</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -12,87 +12,106 @@
     }
     h1 {
       text-align: center;
-      color: #444;
+      margin-bottom: 30px;
     }
-    .search-box {
+    .controls {
       text-align: center;
-      margin: 30px 0;
+      margin-bottom: 20px;
     }
-    input {
+    select {
       padding: 10px;
-      width: 300px;
       font-size: 1em;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 1em;
-      background-color: #0088cc;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      margin-left: 10px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #005f99;
-    }
-    #results {
-      margin-top: 30px;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
+      margin: 0 10px;
     }
     .verse {
       background: #fff;
-      padding: 15px;
-      margin-bottom: 10px;
-      border-left: 5px solid #ffd700;
+      padding: 10px;
+      margin: 5px auto;
+      max-width: 700px;
+      border-left: 4px solid #ffd700;
     }
   </style>
 </head>
 <body>
-  <h1>🔍 Поиск по Писанию — Евангелие от Иоанна</h1>
+  <h1>📖 Свет Слова — Чтение Библии</h1>
 
-  <div class="search-box">
-    <input type="text" id="searchInput" placeholder="Введите слово (например: Бог)">
-    <button onclick="searchBible()">Искать</button>
+  <div class="controls">
+    <label for="bookSelect">Книга:</label>
+    <select id="bookSelect"></select>
+
+    <label for="chapterSelect">Глава:</label>
+    <select id="chapterSelect"></select>
   </div>
 
-  <div id="results"></div>
+  <div id="verses"></div>
 
   <script>
-    const bible = {
+    const bibleData = {
       "Иоанна": {
         "3": {
-          "16": "Ибо так возлюбил Бог мир, что отдал Сына Своего Единородного, дабы всякий верующий в Него не погиб, но имел жизнь вечную.",
-          "17": "Ибо не послал Бог Сына Своего в мир, чтобы судить мир, но чтобы мир спасён был через Него."
+          "16": "Ибо так возлюбил Бог мир, что отдал Сына Своего Единородного...",
+          "17": "Ибо не послал Бог Сына Своего в мир, чтобы судить мир..."
+        }
+      },
+      "Бытие": {
+        "1": {
+          "1": "В начале сотворил Бог небо и землю.",
+          "2": "Земля же была безвидна и пуста..."
+        },
+        "2": {
+          "1": "Так совершены небо и земля и все воинство их.",
+          "2": "И совершил Бог к седьмому дню дела Свои..."
         }
       }
     };
 
-    function searchBible() {
-      const query = document.getElementById("searchInput").value.toLowerCase();
-      const resultsDiv = document.getElementById("results");
-      resultsDiv.innerHTML = "";
+    const bookSelect = document.getElementById("bookSelect");
+    const chapterSelect = document.getElementById("chapterSelect");
+    const versesDiv = document.getElementById("verses");
 
-      for (let book in bible) {
-        for (let chapter in bible[book]) {
-          for (let verse in bible[book][chapter]) {
-            const text = bible[book][chapter][verse];
-            if (text.toLowerCase().includes(query)) {
-              const result = `<div class="verse"><strong>${book} ${chapter}:${verse}</strong><br>${text}</div>`;
-              resultsDiv.innerHTML += result;
-            }
-          }
-        }
+    function populateBooks() {
+      for (let book in bibleData) {
+        const option = document.createElement("option");
+        option.value = book;
+        option.textContent = book;
+        bookSelect.appendChild(option);
       }
+      populateChapters();
+    }
 
-      if (resultsDiv.innerHTML === "") {
-        resultsDiv.innerHTML = "<p>Ничего не найдено. Попробуйте другое слово.</p>";
+    function populateChapters() {
+      chapterSelect.innerHTML = "";
+      const selectedBook = bookSelect.value;
+      const chapters = bibleData[selectedBook];
+      for (let chapter in chapters) {
+        const option = document.createElement("option");
+        option.value = chapter;
+        option.textContent = chapter;
+        chapterSelect.appendChild(option);
+      }
+      displayVerses();
+    }
+
+    function displayVerses() {
+      versesDiv.innerHTML = "";
+      const book = bookSelect.value;
+      const chapter = chapterSelect.value;
+      const verses = bibleData[book][chapter];
+      for (let verseNum in verses) {
+        const verseText = verses[verseNum];
+        const div = document.createElement("div");
+        div.className = "verse";
+        div.innerHTML = `<strong>${book} ${chapter}:${verseNum}</strong><br>${verseText}`;
+        versesDiv.appendChild(div);
       }
     }
+
+    bookSelect.addEventListener("change", populateChapters);
+    chapterSelect.addEventListener("change", displayVerses);
+
+    populateBooks();
   </script>
 </body>
 </html>
-добавлен собственный поиск по иоанна 3 16
+Добавлен переключатель книг и глав
 
