@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Свет Слова — Чтение Библии</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .controls {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    select {
+      padding: 10px;
+      font-size: 1em;
+      margin: 0 10px;
+    }
+    .verse {
+      background: #fff;
+      padding: 10px;
+      margin: 5px auto;
+      max-width: 700px;
+      border-left: 4px solid #ffd700;
+    }
+  </style>
+</head>
+<body>
+  <h1>📖 Свет Слова — Чтение Библии</h1>
+
+  <div class="controls">
+    <label for="bookSelect">Книга:</label>
+    <select id="bookSelect"></select>
+
+    <label for="chapterSelect">Глава:</label>
+    <select id="chapterSelect"></select>
+  </div>
+
+  <div id="verses"></div>
+
+  <script>
+    let bibleData = {};
+
+    async function loadBible() {
+      const response = await fetch('data/bible.json');
+      const json = await response.json();
+      bibleData = {};
+
+      json.Books.forEach(book => {
+        const bookName = book.BookName || book.BookId;
+        bibleData[bookName] = {};
+
+        book.Chapters.forEach(chapter => {
+          const chapterId = chapter.ChapterId.toString();
+          bibleData[bookName][chapterId] = {};
+
+          chapter.Verses.forEach(verse => {
+            bibleData[bookName][chapterId][verse.VerseId] = verse.Text;
+          });
+        });
+      });
+
+      populateBooks();
+    }
+
+    function populateBooks() {
+      const bookSelect = document.getElementById("bookSelect");
+      bookSelect.innerHTML = "";
+
+      Object.keys(bibleData).forEach(book => {
+        const option = document.createElement("option");
+        option.value = book;
+        option.textContent = book;
+        bookSelect.appendChild(option);
+      });
+
+      populateChapters();
+    }
+
+    function populateChapters() {
+      const chapterSelect = document.getElementById("chapterSelect");
+      chapterSelect.innerHTML = "";
+
+      const selectedBook = document.getElementById("bookSelect").value;
+      const chapters = bibleData[selectedBook];
+
+      Object.keys(chapters).forEach(chapter => {
+        const option = document.createElement("option");
+        option.value = chapter;
+        option.textContent = chapter;
+        chapterSelect.appendChild(option);
+      });
+
+      displayVerses();
+    }
+
+    function displayVerses() {
+      const versesDiv = document.getElementById("verses");
+      versesDiv.innerHTML = "";
+
+      const book = document.getElementById("bookSelect").value;
+      const chapter = document.getElementById("chapterSelect").value;
+      const verses = bibleData[book][chapter];
+
+      Object.keys(verses).forEach(verseNum => {
+        const verseText = verses[verseNum];
+        const div = document.createElement("div");
+        div.className = "verse";
+        div.innerHTML = `<strong>${book} ${chapter}:${verseNum}</strong><br>${verseText}`;
+        versesDiv.appendChild(div);
+      });
+    }
+
+    document.getElementById("bookSelect").addEventListener("change", populateChapters);
+    document.getElementById("chapterSelect").addEventListener("change", displayVerses);
+
+    loadBible();
+  </script>
+</body>
+</html>
+Добавлен файл read.html с отображением Библии
