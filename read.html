@@ -49,9 +49,13 @@
     let bibleData = {};
 
     async function loadBible() {
-      const response = await fetch('data/bible.json');
-      bibleData = await response.json();
-      populateBooks();
+      try {
+        const response = await fetch('data/bible.json');
+        bibleData = await response.json();
+        populateBooks();
+      } catch (error) {
+        document.getElementById("verses").innerHTML = "<p>Ошибка загрузки Bible.json</p>";
+      }
     }
 
     function populateBooks() {
@@ -109,4 +113,4 @@
   </script>
 </body>
 </html>
-Обновлён скрипт для простой структуры bible.json
+
