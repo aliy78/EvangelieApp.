@@ -2,66 +2,58 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Свет Слова — Чтение Библии</title>
+  <title>Свет Слова — Бытие 1</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #fefaf2;
-      margin: 20px;
-      color: #333;
+      font-family: sans-serif;
+      background-color: #f6f6f6;
+      margin: 0;
+      padding: 20px;
     }
     h1 {
-      text-align: center;
-      color: #6b4f1d;
+      color: #3e3e3e;
     }
     #bible-display p {
-      margin: 6px 0;
-      line-height: 1.5;
+      margin: 8px 0;
+      font-size: 18px;
+      line-height: 1.6;
     }
   </style>
 </head>
 <body>
-
-  <h1>Свет Слова — Чтение Библии</h1>
+  <h1>Свет Слова — Бытие 1</h1>
   <div id="bible-display">Загрузка главы...</div>
 
   <script>
-    let bibleData = null;
-
-    // Загружаем JSON с Библией
-    fetch('data/bible.json')
-      .then(response => response.json())
+    fetch('main/biblie.json')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Не удалось загрузить файл");
+        }
+        return response.json();
+      })
       .then(data => {
-        bibleData = data;
-        renderChapter(43, 3); // Иоанна 3
+        const book = data.Books.find(b => b.BookId === 1);
+        const chapter = book?.Chapters.find(c => c.ChapterId === 1);
+        const container = document.getElementById("bible-display");
+        container.innerHTML = "";
+
+        if (!chapter || !chapter.Verses) {
+          container.innerText = "Глава не найдена.";
+          return;
+        }
+
+        chapter.Verses.forEach(v => {
+          const verseEl = document.createElement("p");
+          verseEl.textContent = `${v.VerseId}. ${v.Text}`;
+          container.appendChild(verseEl);
+        });
+      })
+      .catch(error => {
+        document.getElementById("bible-display").innerText = "Ошибка загрузки Библии.";
+        console.error("Ошибка загрузки:", error);
       });
-
-    // Функция отображения главы
-    function renderChapter(bookId, chapterId) {
-      const book = bibleData.Books.find(b => b.BookId === bookId);
-      if (!book) {
-        document.getElementById("bible-display").innerText = "Книга не найдена.";
-        return;
-      }
-
-      const chapter = book.Chapters.find(c => c.ChapterId === chapterId);
-      if (!chapter) {
-        document.getElementById("bible-display").innerText = "Глава не найдена.";
-        return;
-      }
-
-      const verses = chapter.Verses;
-      const container = document.getElementById("bible-display");
-      container.innerHTML = "";
-
-      verses.forEach(v => {
-        const verseEl = document.createElement("p");
-        verseEl.textContent = `${v.VerseId}. ${v.Text}`;
-        container.appendChild(verseEl);
-      });
-    }
   </script>
-
 </body>
 </html>
 
